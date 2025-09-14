@@ -12,7 +12,10 @@ import { createStyledCustomElement } from './utils/create-styled-element';
 import './components/custom-image';
 
 @customElement('custom-picture-elements-card')
-export class CustomPictureElementsCard extends LitElement implements LovelaceCard {
+export class CustomPictureElementsCard
+  extends LitElement
+  implements LovelaceCard
+{
   public static async getConfigElement() {
     // Editor will be loaded dynamically when needed
     await import('./editor/custom-picture-elements-card-editor');
@@ -30,7 +33,8 @@ export class CustomPictureElementsCard extends LitElement implements LovelaceCar
     entities?: string[],
     entitiesFallback?: string[]
   ): CustomPictureElementsCardConfig {
-    const foundEntities = entities?.slice(0, 1) || entitiesFallback?.slice(0, 1) || [];
+    const foundEntities =
+      entities?.slice(0, 1) || entitiesFallback?.slice(0, 1) || [];
 
     return {
       type: 'custom:custom-picture-elements-card',
@@ -243,15 +247,16 @@ declare global {
 // Register the card
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
-  type: 'custom:custom-picture-elements-card',
+  type: 'custom-picture-elements-card',
   name: 'Custom Picture Elements Card',
   description: 'A customizable picture elements card',
-  documentationURL: 'https://github.com/yourusername/custom-picture-elements-card',
+  documentationURL:
+    'https://github.com/yourusername/custom-picture-elements-card',
   preview: true,
 });
 
 console.info(
-  `%c  Custom Picture Elements Card %c v1.0.0 `,
+  `%c  Custom Picture Elements Card %c v1.0.6 `,
   'color: orange; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray'
 );
