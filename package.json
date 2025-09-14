@@ -1,6 +1,6 @@
 {
   "name": "custom-picture-elements-card",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "module",
   "description": "A customizable picture elements card for Home Assistant",
   "main": "dist/custom-picture-elements-card.js",
@@ -39,8 +39,5 @@
     "@rollup/plugin-terser": "^0.4.4",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3"
-  },
-  "peerDependencies": {
-    "lit": "^3.0.0"
   }
 }

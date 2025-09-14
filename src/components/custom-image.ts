@@ -1,7 +1,7 @@
 import { css, html, LitElement, nothing, PropertyValues } from 'lit';
-import { customElement, property, state } from 'lit/decorators';
-import { classMap } from 'lit/directives/class-map';
-import { styleMap } from 'lit/directives/style-map';
+import { customElement, property, state } from 'lit/decorators.js';
+import { classMap } from 'lit/directives/class-map.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import { HomeAssistant, StateSpecificConfig } from '../types';
 import { STATES_OFF, UNAVAILABLE, computeDomain } from '../utils/dom-utils';
 

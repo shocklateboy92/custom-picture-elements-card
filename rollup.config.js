@@ -21,6 +21,7 @@ const plugins = [
   nodeResolve({
     browser: true,
     preferBuiltins: false,
+    exportConditions: ['node'],
   }),
   commonjs(),
   json(),
@@ -41,11 +42,7 @@ export default {
     inlineDynamicImports: true,
   },
   plugins,
-  external: [
-    // Don't bundle these - they should be provided by Home Assistant
-    /^@lit-labs/,
-    /^lit/,
-  ],
+  // Bundle everything - no external dependencies
   watch: {
     exclude: ['node_modules/**'],
   },
