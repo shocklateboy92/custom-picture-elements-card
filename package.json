@@ -1,6 +1,6 @@
 {
   "name": "custom-picture-elements-card",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "A customizable picture elements card for Home Assistant",
   "main": "dist/custom-picture-elements-card.js",
