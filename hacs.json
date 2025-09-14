@@ -1,0 +1,8 @@
+{
+  "name": "Custom Picture Elements Card",
+  "content_in_root": false,
+  "filename": "custom-picture-elements-card.js",
+  "render_readme": true,
+  "zip_release": true,
+  "hide_default_branch": false
+}
