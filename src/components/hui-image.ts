@@ -34,8 +34,8 @@ const parseAspectRatio = (aspectRatio: string) => {
   return { w, h };
 };
 
-@customElement("hui-image")
-export class HuiImage extends LitElement {
+@customElement("custom-hui-image")
+export class CustomHuiImage extends LitElement {
   @property({ attribute: false }) public hass?: HomeAssistant;
 
   @property() public entity?: string;
@@ -440,6 +440,6 @@ export class HuiImage extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "hui-image": HuiImage;
+    "custom-hui-image": CustomHuiImage;
   }
 }

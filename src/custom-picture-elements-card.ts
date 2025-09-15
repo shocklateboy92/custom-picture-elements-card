@@ -16,7 +16,7 @@ import type {
   ImageEntity,
   PersonEntity
 } from "./types";
-import "./components/hui-image";
+// No need to import hui-image as Home Assistant already provides it
 
 @customElement('custom-picture-elements-card')
 class CustomPictureElementsCard extends LitElement implements LovelaceCard {
