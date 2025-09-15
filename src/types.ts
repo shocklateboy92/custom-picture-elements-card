@@ -23,12 +23,12 @@ export interface LovelaceCardEditor {
 }
 
 export interface CustomPictureElementsCardConfig {
-  type: "custom:custom-picture-elements-card";
+  type: 'custom:custom-picture-elements-card';
   title?: string;
   image?: string;
   image_entity?: string;
   camera_image?: string;
-  camera_view?: "live" | "auto";
+  camera_view?: 'live' | 'auto';
   state_image?: Record<string, string>;
   state_filter?: Record<string, string>;
   aspect_ratio?: string;
@@ -65,7 +65,7 @@ export interface StateSpecificConfig {
 }
 
 export interface ActionConfig {
-  action: "toggle" | "call-service" | "navigate" | "url" | "more-info" | "none";
+  action: 'toggle' | 'call-service' | 'navigate' | 'url' | 'more-info' | 'none';
   entity?: string;
   service?: string;
   service_data?: Record<string, any>;
@@ -96,12 +96,12 @@ export interface PersonEntity {
 }
 
 export interface PictureElementsCardConfig {
-  type: "picture-elements";
+  type: 'picture-elements';
   title?: string;
   image?: string;
   image_entity?: string;
   camera_image?: string;
-  camera_view?: "live" | "auto";
+  camera_view?: 'live' | 'auto';
   state_image?: Record<string, string>;
   state_filter?: Record<string, string>;
   aspect_ratio?: string;

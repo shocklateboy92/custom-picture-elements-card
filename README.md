@@ -61,19 +61,20 @@ elements:
 
 ## Configuration
 
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `type` | string | **Required** | `custom:custom-picture-elements-card` |
-| `title` | string | Optional | Card title |
-| `image` | string | Optional | Main image URL |
-| `camera_image` | string | Optional | Camera entity ID |
-| `elements` | list | **Required** | List of overlay elements |
+| Name           | Type   | Default      | Description                           |
+| -------------- | ------ | ------------ | ------------------------------------- |
+| `type`         | string | **Required** | `custom:custom-picture-elements-card` |
+| `title`        | string | Optional     | Card title                            |
+| `image`        | string | Optional     | Main image URL                        |
+| `camera_image` | string | Optional     | Camera entity ID                      |
+| `elements`     | list   | **Required** | List of overlay elements              |
 
 For complete configuration documentation, see [info.md](info.md).
 
 ## Examples
 
 ### Basic Floorplan
+
 ```yaml
 type: custom:custom-picture-elements-card
 image: /local/floorplan.png
@@ -86,6 +87,7 @@ elements:
 ```
 
 ### Camera with Overlays
+
 ```yaml
 type: custom:custom-picture-elements-card
 camera_image: camera.front_door
@@ -99,6 +101,7 @@ elements:
 ```
 
 ### State-Based Images
+
 ```yaml
 type: custom:custom-picture-elements-card
 entity: alarm_control_panel.home
@@ -139,16 +142,19 @@ npm run format
 ## Troubleshooting
 
 ### Card Not Showing
+
 - Verify the resource is added to your dashboard
 - Check browser console for errors
 - Ensure Home Assistant is restarted after installation
 
 ### Elements Not Positioning
+
 - Make sure elements have `style.top` and `style.left` properties
 - Use percentage values for responsive positioning
 - Check for CSS conflicts with your theme
 
 ### Images Not Loading
+
 - Verify image paths are correct and accessible
 - Use `/local/` for files in `config/www/`
 - Check Home Assistant logs for file access errors

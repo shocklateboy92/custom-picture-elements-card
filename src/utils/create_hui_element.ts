@@ -1,17 +1,19 @@
 import type { LovelaceElementConfig, LovelaceElement } from '../types';
 
 // Simplified element creation that just creates basic elements
-export const createHuiElement = (config: LovelaceElementConfig): LovelaceElement => {
+export const createHuiElement = (
+  config: LovelaceElementConfig
+): LovelaceElement => {
   // Handle legacy action-button -> service-button conversion
-  if (config.type === "action-button") {
-    config = { ...config, type: "service-button" };
+  if (config.type === 'action-button') {
+    config = { ...config, type: 'service-button' };
   }
 
   // Create element based on type
   const elementMap: Record<string, string> = {
-    'conditional': 'hui-conditional-element',
-    'icon': 'hui-icon-element',
-    'image': 'hui-image-element',
+    conditional: 'hui-conditional-element',
+    icon: 'hui-icon-element',
+    image: 'hui-image-element',
     'service-button': 'hui-service-button-element',
     'state-badge': 'hui-state-badge-element',
     'state-icon': 'hui-state-icon-element',

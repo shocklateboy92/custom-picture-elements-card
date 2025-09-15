@@ -68,7 +68,7 @@ image: /local/floorplan.png
 dark_mode_image: /local/floorplan-dark.png
 camera_image: camera.front_door
 camera_view: live
-aspect_ratio: "16:9"
+aspect_ratio: '16:9'
 state_image:
   home: /local/house-home.png
   away: /local/house-away.png
@@ -97,22 +97,22 @@ elements:
 
 ## Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `type` | string | **Required** | `custom:custom-picture-elements-card` |
-| `title` | string | Optional | Card title |
-| `image` | string | Optional | URL of the image to display |
-| `image_entity` | string | Optional | Entity ID of an image or person entity |
-| `camera_image` | string | Optional | Entity ID of a camera |
-| `camera_view` | string | `auto` | `auto` or `live` |
-| `state_image` | object | Optional | Different images based on entity state |
-| `state_filter` | object | Optional | CSS filters based on entity state |
-| `entity` | string | Optional | Entity for state-based images/filters |
-| `aspect_ratio` | string | Optional | Force aspect ratio (e.g., "16:9") |
-| `theme` | string | Optional | Theme to use |
-| `dark_mode_image` | string | Optional | Image to use in dark mode |
-| `dark_mode_filter` | string | Optional | Filter to apply in dark mode |
-| `elements` | list | **Required** | List of elements to display |
+| Option             | Type   | Default      | Description                            |
+| ------------------ | ------ | ------------ | -------------------------------------- |
+| `type`             | string | **Required** | `custom:custom-picture-elements-card`  |
+| `title`            | string | Optional     | Card title                             |
+| `image`            | string | Optional     | URL of the image to display            |
+| `image_entity`     | string | Optional     | Entity ID of an image or person entity |
+| `camera_image`     | string | Optional     | Entity ID of a camera                  |
+| `camera_view`      | string | `auto`       | `auto` or `live`                       |
+| `state_image`      | object | Optional     | Different images based on entity state |
+| `state_filter`     | object | Optional     | CSS filters based on entity state      |
+| `entity`           | string | Optional     | Entity for state-based images/filters  |
+| `aspect_ratio`     | string | Optional     | Force aspect ratio (e.g., "16:9")      |
+| `theme`            | string | Optional     | Theme to use                           |
+| `dark_mode_image`  | string | Optional     | Image to use in dark mode              |
+| `dark_mode_filter` | string | Optional     | Filter to apply in dark mode           |
+| `elements`         | list   | **Required** | List of elements to display            |
 
 ### Element Types
 

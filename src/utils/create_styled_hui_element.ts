@@ -1,16 +1,13 @@
 import { createHuiElement } from './create_hui_element';
-import type {
-  LovelaceElement,
-  LovelaceElementConfig,
-} from '../types';
+import type { LovelaceElement, LovelaceElementConfig } from '../types';
 
 export function createStyledHuiElement(
   elementConfig: LovelaceElementConfig
 ): LovelaceElement {
   const element = createHuiElement(elementConfig) as LovelaceElement;
   // keep conditional card as a transparent container so let its position remain static
-  if (element.tagName !== "HUI-CONDITIONAL-ELEMENT") {
-    element.classList.add("element");
+  if (element.tagName !== 'HUI-CONDITIONAL-ELEMENT') {
+    element.classList.add('element');
   }
 
   if (elementConfig.style) {

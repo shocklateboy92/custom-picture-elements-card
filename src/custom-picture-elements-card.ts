@@ -1,11 +1,11 @@
-import type { PropertyValues } from "lit";
-import { css, html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { applyThemesOnElement } from "./utils/apply_themes_on_element";
-import { computeDomain } from "./utils/compute_domain";
-import { computeImageUrl } from "./utils/compute_image_url";
-import { findEntities } from "./utils/find_entities";
-import { createStyledHuiElement } from "./utils/create_styled_hui_element";
+import type { PropertyValues } from 'lit';
+import { css, html, LitElement, nothing } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import { applyThemesOnElement } from './utils/apply_themes_on_element';
+import { computeDomain } from './utils/compute_domain';
+import { computeImageUrl } from './utils/compute_image_url';
+import { findEntities } from './utils/find_entities';
+import { createStyledHuiElement } from './utils/create_styled_hui_element';
 import type {
   HomeAssistant,
   LovelaceCard,
@@ -14,8 +14,8 @@ import type {
   LovelaceElementConfig,
   PictureElementsCardConfig,
   ImageEntity,
-  PersonEntity
-} from "./types";
+  PersonEntity,
+} from './types';
 // No need to import hui-image as Home Assistant already provides it
 
 @customElement('custom-picture-elements-card')
@@ -42,22 +42,22 @@ class CustomPictureElementsCard extends LitElement implements LovelaceCard {
       maxEntities,
       entities,
       entitiesFallback,
-      ["sensor", "binary_sensor"]
+      ['sensor', 'binary_sensor']
     );
 
     return {
-      type: "picture-elements",
+      type: 'picture-elements',
       elements: [
         {
-          type: "state-badge",
-          entity: foundEntities[0] || "",
+          type: 'state-badge',
+          entity: foundEntities[0] || '',
           style: {
-            top: "32%",
-            left: "40%",
+            top: '32%',
+            left: '40%',
           },
         },
       ],
-      image: "https://demo.home-assistant.io/stub_config/floorplan.png",
+      image: 'https://demo.home-assistant.io/stub_config/floorplan.png',
     };
   }
 
@@ -69,7 +69,7 @@ class CustomPictureElementsCard extends LitElement implements LovelaceCard {
 
   public setConfig(config: PictureElementsCardConfig): void {
     if (!config) {
-      throw new Error("Invalid configuration");
+      throw new Error('Invalid configuration');
     } else if (
       !(
         config.image ||
@@ -79,9 +79,9 @@ class CustomPictureElementsCard extends LitElement implements LovelaceCard {
       ) ||
       (config.state_image && !config.entity)
     ) {
-      throw new Error("Image required");
+      throw new Error('Image required');
     } else if (!Array.isArray(config.elements)) {
-      throw new Error("Elements required");
+      throw new Error('Elements required');
     }
 
     this._config = config;
@@ -110,8 +110,8 @@ class CustomPictureElementsCard extends LitElement implements LovelaceCard {
       }
     }
 
-    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
-    const oldConfig = changedProps.get("_config") as
+    const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
+    const oldConfig = changedProps.get('_config') as
       | PictureElementsCardConfig
       | undefined;
 
@@ -136,10 +136,10 @@ class CustomPictureElementsCard extends LitElement implements LovelaceCard {
         this.hass.states[this._config.image_entity];
       const domain: string = computeDomain(this._config.image_entity);
       switch (domain) {
-        case "image":
+        case 'image':
           image = computeImageUrl(stateObj as ImageEntity);
           break;
-        case "person":
+        case 'person':
           if ((stateObj as PersonEntity).attributes.entity_picture) {
             image = (stateObj as PersonEntity).attributes.entity_picture;
           }
@@ -194,7 +194,7 @@ class CustomPictureElementsCard extends LitElement implements LovelaceCard {
     }
     element.preview = this.preview;
     element.addEventListener(
-      "ll-rebuild",
+      'll-rebuild',
       (ev: Event) => {
         ev.stopPropagation();
         this._rebuildElement(element, elementConfig);
@@ -220,7 +220,7 @@ class CustomPictureElementsCard extends LitElement implements LovelaceCard {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "custom-picture-elements-card": CustomPictureElementsCard;
+    'custom-picture-elements-card': CustomPictureElementsCard;
   }
 }
 
