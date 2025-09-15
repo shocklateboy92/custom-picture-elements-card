@@ -98,15 +98,7 @@ export class CustomPictureElementsCardEditor
     }
 
     if (this._subElementEditorConfig) {
-      return html`
-        <hui-sub-element-editor
-          .hass=${this.hass}
-          .config=${this._subElementEditorConfig}
-          @go-back=${this._goBack}
-          @config-changed=${this._handleSubElementChanged}
-        >
-        </hui-sub-element-editor>
-      `;
+      return this._renderElementEditor();
     }
 
     return html`
@@ -124,6 +116,76 @@ export class CustomPictureElementsCardEditor
         @edit-detail-element=${this._editDetailElement}
       ></custom-picture-elements-card-row-editor>
     `;
+  }
+
+  private _renderElementEditor() {
+    if (!this._subElementEditorConfig || !this.hass) {
+      return nothing;
+    }
+
+    const elementConfig = this._subElementEditorConfig.elementConfig || { type: 'state-icon' };
+    const elementSchema = [
+      { name: 'type', selector: { select: {
+        options: [
+          { value: 'state-badge', label: 'State Badge' },
+          { value: 'state-icon', label: 'State Icon' },
+          { value: 'state-label', label: 'State Label' },
+          { value: 'icon', label: 'Icon' },
+          { value: 'image', label: 'Image' },
+          { value: 'conditional', label: 'Conditional' },
+        ]
+      }}},
+      { name: 'entity', selector: { entity: {} }},
+      { name: 'icon', selector: { icon: {} }},
+      { name: 'title', selector: { text: {} }},
+      { name: 'style', selector: { object: {} }},
+    ];
+
+    return html`
+      <div style="padding: 16px;">
+        <div style="display: flex; align-items: center; margin-bottom: 16px;">
+          <ha-icon-button
+            .path=${'M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z'}
+            @click=${this._goBack}
+            style="margin-right: 8px;"
+          ></ha-icon-button>
+          <h3 style="margin: 0;">Edit Element: ${elementConfig.type || 'New Element'}</h3>
+        </div>
+        <ha-alert alert-type="info" style="margin-bottom: 16px;">
+          Configure the element properties below. An entity is required for state-based elements.
+        </ha-alert>
+        <ha-form
+          .hass=${this.hass}
+          .data=${elementConfig}
+          .schema=${elementSchema}
+          .computeLabel=${this._computeLabelCallback}
+          @value-changed=${this._elementFormChanged}
+        ></ha-form>
+      </div>
+    `;
+  }
+
+  private _elementFormChanged(ev: CustomEvent): void {
+    ev.stopPropagation();
+    if (!this._subElementEditorConfig) {
+      return;
+    }
+
+    const newElementConfig = ev.detail.value;
+    this._subElementEditorConfig = {
+      ...this._subElementEditorConfig,
+      elementConfig: newElementConfig,
+    };
+
+    // Update the main config
+    if (this._config && this._subElementEditorConfig.type === 'element') {
+      const newElements = [...this._config.elements];
+      newElements[this._subElementEditorConfig.index!] = newElementConfig;
+
+      fireEvent(this, 'config-changed', {
+        config: { ...this._config, elements: newElements }
+      });
+    }
   }
 
   private _formChanged(ev: CustomEvent): void {
