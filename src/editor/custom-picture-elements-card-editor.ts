@@ -17,8 +17,8 @@ import type {
   HomeAssistant,
   LovelaceCardEditor,
   PictureElementsCardConfig,
-  LovelaceElementConfig,
 } from '../types';
+import './custom-picture-elements-card-row-editor';
 
 const genericElementConfigStruct = type({
   type: string(),
@@ -58,7 +58,7 @@ export class CustomPictureElementsCardEditor
   }
 
   private _schema = memoizeOne(
-    () =>
+    (localize: any) =>
       [
         {
           name: '',
@@ -89,70 +89,6 @@ export class CustomPictureElementsCardEditor
             { name: 'dark_mode_filter', selector: { object: {} } },
           ],
         },
-        {
-          name: '',
-          type: 'expandable',
-          title: 'Elements',
-          schema: [
-            {
-              name: 'elements',
-              selector: {
-                list: {
-                  add: {
-                    type: 'select',
-                    options: [
-                      { value: 'state-badge', label: 'State Badge' },
-                      { value: 'state-icon', label: 'State Icon' },
-                      { value: 'state-label', label: 'State Label' },
-                      { value: 'icon', label: 'Icon' },
-                      { value: 'image', label: 'Image' },
-                      { value: 'conditional', label: 'Conditional' },
-                    ],
-                  },
-                  schema: [
-                    {
-                      name: 'type',
-                      selector: {
-                        select: {
-                          options: [
-                            { value: 'state-badge', label: 'State Badge' },
-                            { value: 'state-icon', label: 'State Icon' },
-                            { value: 'state-label', label: 'State Label' },
-                            { value: 'icon', label: 'Icon' },
-                            { value: 'image', label: 'Image' },
-                            { value: 'conditional', label: 'Conditional' },
-                          ],
-                        },
-                      },
-                    },
-                    { name: 'entity', selector: { entity: {} } },
-                    { name: 'icon', selector: { icon: {} } },
-                    { name: 'image', selector: { image: {} } },
-                    { name: 'title', selector: { text: {} } },
-                    {
-                      name: 'style',
-                      selector: {
-                        object: {
-                          schema: [
-                            { name: 'top', selector: { text: {} } },
-                            { name: 'left', selector: { text: {} } },
-                            { name: 'transform', selector: { text: {} } },
-                            { name: 'background', selector: { text: {} } },
-                            { name: 'color', selector: { text: {} } },
-                            { name: 'font-size', selector: { text: {} } },
-                            { name: 'border-radius', selector: { text: {} } },
-                            { name: 'padding', selector: { text: {} } },
-                            { name: 'margin', selector: { text: {} } },
-                          ],
-                        },
-                      },
-                    },
-                  ],
-                },
-              },
-            },
-          ],
-        },
       ] as const
   );
 
@@ -181,6 +117,12 @@ export class CustomPictureElementsCardEditor
         .computeLabel=${this._computeLabelCallback}
         @value-changed=${this._formChanged}
       ></ha-form>
+      <custom-picture-elements-card-row-editor
+        .hass=${this.hass}
+        .elements=${this._config.elements}
+        @elements-changed=${this._elementsChanged}
+        @edit-detail-element=${this._editDetailElement}
+      ></custom-picture-elements-card-row-editor>
     `;
   }
 
@@ -191,6 +133,32 @@ export class CustomPictureElementsCardEditor
     }
 
     fireEvent(this, 'config-changed', { config: ev.detail.value });
+  }
+
+  private _elementsChanged(ev: CustomEvent): void {
+    ev.stopPropagation();
+
+    const oldLength = this._config?.elements?.length || 0;
+    const config = {
+      ...this._config,
+      elements: ev.detail.elements,
+    };
+
+    fireEvent(this, 'config-changed', { config });
+
+    const newLength = ev.detail.elements?.length || 0;
+    if (newLength === oldLength + 1) {
+      const index = newLength - 1;
+      this._subElementEditorConfig = {
+        index,
+        type: 'element',
+        elementConfig: { ...ev.detail.elements[index] },
+      };
+    }
+  }
+
+  private _editDetailElement(ev: CustomEvent): void {
+    this._subElementEditorConfig = ev.detail.subElementConfig;
   }
 
   private _handleSubElementChanged(ev: CustomEvent): void {
