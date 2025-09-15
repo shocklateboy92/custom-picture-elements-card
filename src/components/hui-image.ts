@@ -1,12 +1,17 @@
-import { css, html, LitElement, nothing, PropertyValues } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import { classMap } from 'lit/directives/class-map.js';
-import { styleMap } from 'lit/directives/style-map.js';
-import { HomeAssistant, StateSpecificConfig } from '../types';
-import { STATES_OFF, UNAVAILABLE, computeDomain } from '../utils/dom-utils';
+import type { PropertyValues } from "lit";
+import { css, html, LitElement, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
+import { styleMap } from "lit/directives/style-map.js";
+import { computeDomain } from "../utils/compute_domain";
+import { computeImageUrl } from "../utils/compute_image_url";
+import type { HomeAssistant, ImageEntity, PersonEntity } from "../types";
 
+const STATES_OFF = ["off", "closed", "idle", "docked", "standby", "auto"];
 const UPDATE_INTERVAL = 10000;
-const DEFAULT_FILTER = 'grayscale(100%)';
+const DEFAULT_FILTER = "grayscale(100%)";
+const UNAVAILABLE = "unavailable";
+
 const MAX_IMAGE_WIDTH = 640;
 const ASPECT_RATIO_DEFAULT = 9 / 16;
 
@@ -16,17 +21,21 @@ const enum LoadState {
   Error = 3,
 }
 
-function parseAspectRatio(aspectRatio: string): { w: number; h: number } | null {
-  const match = aspectRatio.match(/^(\d+(?:\.\d+)?):(\d+(?:\.\d+)?)$/);
-  if (!match) return null;
-  return {
-    w: parseFloat(match[1]),
-    h: parseFloat(match[2]),
-  };
-}
+export type StateSpecificConfig = Record<string, string>;
 
-@customElement('custom-image')
-export class CustomImage extends LitElement {
+// Simple aspect ratio parser
+const parseAspectRatio = (aspectRatio: string) => {
+  const parts = aspectRatio.split(':');
+  if (parts.length !== 2) return null;
+
+  const w = parseFloat(parts[0]);
+  const h = parseFloat(parts[1]);
+
+  return { w, h };
+};
+
+@customElement("hui-image")
+export class HuiImage extends LitElement {
   @property({ attribute: false }) public hass?: HomeAssistant;
 
   @property() public entity?: string;
@@ -37,7 +46,7 @@ export class CustomImage extends LitElement {
 
   @property({ attribute: false }) public cameraImage?: string;
 
-  @property({ attribute: false }) public cameraView?: 'live' | 'auto';
+  @property({ attribute: false }) public cameraView?: "live" | "auto";
 
   @property({ attribute: false }) public aspectRatio?: string;
 
@@ -49,10 +58,10 @@ export class CustomImage extends LitElement {
 
   @property({ attribute: false }) public darkModeFilter?: string;
 
-  @property({ attribute: 'fit-mode', type: String }) public fitMode?:
-    | 'cover'
-    | 'contain'
-    | 'fill';
+  @property({ attribute: "fit-mode", type: String }) public fitMode?:
+    | "cover"
+    | "contain"
+    | "fill";
 
   @state() private _imageVisible? = false;
 
@@ -78,7 +87,7 @@ export class CustomImage extends LitElement {
     if (this._loadState === undefined) {
       this._loadState = LoadState.Loading;
     }
-    if (this.cameraImage && this.cameraView !== 'live') {
+    if (this.cameraImage && this.cameraView !== "live") {
       this._startIntersectionObserverOrUpdates();
     }
   }
@@ -95,8 +104,8 @@ export class CustomImage extends LitElement {
   }
 
   public willUpdate(changedProps: PropertyValues): void {
-    if (changedProps.has('hass')) {
-      const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
+    if (changedProps.has("hass")) {
+      const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
 
       if (this._shouldStartCameraUpdates(oldHass)) {
         this._startIntersectionObserverOrUpdates();
@@ -108,7 +117,7 @@ export class CustomImage extends LitElement {
         this._loadedImageSrc = undefined;
       }
     }
-    if (changedProps.has('_imageVisible')) {
+    if (changedProps.has("_imageVisible")) {
       if (this._imageVisible) {
         if (this._shouldStartCameraUpdates()) {
           this._startUpdateCameraInterval();
@@ -117,7 +126,7 @@ export class CustomImage extends LitElement {
         this._stopUpdateCameraInterval();
       }
     }
-    if (changedProps.has('aspectRatio')) {
+    if (changedProps.has("aspectRatio")) {
       this._ratio = this.aspectRatio
         ? parseAspectRatio(this.aspectRatio)
         : null;
@@ -139,10 +148,15 @@ export class CustomImage extends LitElement {
 
     // Figure out image source to use
     let imageSrc: string | undefined;
+    // Track if we are we using a fallback image, used for filter.
     let imageFallback = !this.stateImage;
 
     if (this.cameraImage) {
-      if (this.cameraView !== 'live') {
+      if (this.cameraView === "live") {
+        // For live camera view, we would use ha-camera-stream component
+        // For this port, we'll just use the thumbnail
+        imageSrc = this._cameraImageSrc;
+      } else {
         imageSrc = this._cameraImageSrc;
       }
     } else if (this.stateImage) {
@@ -154,23 +168,22 @@ export class CustomImage extends LitElement {
         imageSrc = this.image;
         imageFallback = true;
       }
-    } else if (this.darkModeImage && this.hass.themes.darkMode) {
+    } else if (this.darkModeImage && this.hass.themes?.darkMode) {
       imageSrc = this.darkModeImage;
-    } else if (stateObj && computeDomain(stateObj.entity_id) === 'image') {
-      // Simplified - in real implementation would need to handle image entities
-      imageSrc = stateObj.attributes.entity_picture || this.image;
+    } else if (stateObj && computeDomain(stateObj.entity_id) === "image") {
+      imageSrc = computeImageUrl(stateObj as ImageEntity);
     } else {
       imageSrc = this.image;
     }
 
-    if (imageSrc) {
+    if (imageSrc && this.hass.hassUrl) {
       imageSrc = this.hass.hassUrl(imageSrc);
     }
 
     // Figure out filter to use
-    let filter = this.filter || '';
+    let filter = this.filter || "";
 
-    if (this.hass.themes.darkMode && this.darkModeFilter) {
+    if (this.hass.themes?.darkMode && this.darkModeFilter) {
       filter += this.darkModeFilter;
     }
 
@@ -180,7 +193,7 @@ export class CustomImage extends LitElement {
 
     if (!filter && this.entity) {
       const isOff = !stateObj || STATES_OFF.includes(entityState);
-      filter = isOff && imageFallback ? DEFAULT_FILTER : '';
+      filter = isOff && imageFallback ? DEFAULT_FILTER : "";
     }
 
     return html`
@@ -189,21 +202,21 @@ export class CustomImage extends LitElement {
           paddingBottom: useRatio
             ? `${((100 * this._ratio!.h) / this._ratio!.w).toFixed(2)}%`
             : this._lastImageHeight === undefined
-              ? '56.25%'
+              ? "56.25%"
               : undefined,
           backgroundImage:
             useRatio && this._loadedImageSrc
               ? `url("${this._loadedImageSrc}")`
               : undefined,
           filter:
-            this._loadState === LoadState.Loaded || this.cameraView === 'live'
+            this._loadState === LoadState.Loaded || this.cameraView === "live"
               ? filter
               : undefined,
         })}
         class="container ${classMap({
           ratio: useRatio || this._lastImageHeight === undefined,
-          contain: this.fitMode === 'contain',
-          fill: this.fitMode === 'fill',
+          contain: this.fitMode === "contain",
+          fill: this.fitMode === "fill",
         })}"
       >
         ${imageSrc === undefined
@@ -212,14 +225,14 @@ export class CustomImage extends LitElement {
               <img
                 id="image"
                 src=${imageSrc}
-                alt=${this.entity || ''}
+                alt=${this.entity || ""}
                 @error=${this._onImageError}
                 @load=${this._onImageLoad}
                 style=${styleMap({
                   display:
                     useRatio || this._loadState === LoadState.Loaded
-                      ? 'block'
-                      : 'none',
+                      ? "block"
+                      : "none",
                 })}
               />
             `}
@@ -228,22 +241,23 @@ export class CustomImage extends LitElement {
               id="brokenImage"
               style=${styleMap({
                 height: !useRatio
-                  ? `${this._lastImageHeight}px` || '100%'
+                  ? `${this._lastImageHeight}px` || "100%"
                   : undefined,
               })}
             ></div>`
-          : imageSrc === undefined || this._loadState === LoadState.Loading
+          : this.cameraView !== "live" &&
+              (imageSrc === undefined || this._loadState === LoadState.Loading)
             ? html`<div
                 class="progress-container"
                 style=${styleMap({
                   height: !useRatio
-                    ? `${this._lastImageHeight}px` || '100%'
+                    ? `${this._lastImageHeight}px` || "100%"
                     : undefined,
                 })}
               >
                 <div class="spinner">Loading...</div>
               </div>`
-            : ''}
+            : ""}
       </div>
     `;
   }
@@ -252,12 +266,12 @@ export class CustomImage extends LitElement {
     return !!(
       (!oldHass || oldHass.connected !== this.hass!.connected) &&
       this.hass!.connected &&
-      this.cameraView !== 'live'
+      this.cameraView !== "live"
     );
   }
 
   private _startIntersectionObserverOrUpdates(): void {
-    if ('IntersectionObserver' in window) {
+    if ("IntersectionObserver" in window) {
       if (!this._intersectionObserver) {
         this._intersectionObserver = new IntersectionObserver(
           this.handleIntersectionCallback.bind(this)
@@ -265,6 +279,8 @@ export class CustomImage extends LitElement {
       }
       this._intersectionObserver.observe(this);
     } else {
+      // No support for IntersectionObserver
+      // assume all images are visible
       this._imageVisible = true;
       this._startUpdateCameraInterval();
     }
@@ -309,6 +325,8 @@ export class CustomImage extends LitElement {
   }
 
   private async _updateCameraImageSrcAtInterval(): Promise<void> {
+    // If we hit the interval and it was still loading
+    // it means we timed out so we should show the error.
     if (this._loadState === LoadState.Loading) {
       this._onImageError();
     }
@@ -327,8 +345,25 @@ export class CustomImage extends LitElement {
       return;
     }
 
-    // Simplified camera thumbnail logic - in real implementation would use proper API
-    this._cameraImageSrc = `/api/camera_proxy/${this.cameraImage}`;
+    // Simplified camera image URL generation
+    // In the real implementation, this would use fetchThumbnailUrlWithCache
+    const element_width = this.clientWidth || MAX_IMAGE_WIDTH;
+    let width = Math.ceil(element_width * devicePixelRatio);
+    let height: number;
+
+    if (!this._lastImageHeight) {
+      if (this._ratio && this._ratio.w > 0 && this._ratio.h > 0) {
+        height = Math.ceil(width * (this._ratio.h / this._ratio.w));
+      } else {
+        width *= 2;
+        height = Math.ceil(width * ASPECT_RATIO_DEFAULT);
+      }
+    } else {
+      height = Math.ceil(this._lastImageHeight * devicePixelRatio);
+    }
+
+    // Simple camera thumbnail URL
+    this._cameraImageSrc = `/api/camera_proxy/${this.cameraImage}?width=${width}&height=${height}`;
 
     if (this._cameraImageSrc === undefined) {
       this._onImageError();
@@ -359,7 +394,8 @@ export class CustomImage extends LitElement {
     }
 
     .spinner {
-      color: var(--primary-text-color, #212121);
+      color: var(--primary-text-color, #000);
+      font-size: 14px;
     }
 
     .ratio {
@@ -369,20 +405,16 @@ export class CustomImage extends LitElement {
       background-position: center;
       background-size: cover;
     }
-
     .ratio.fill {
       background-size: 100% 100%;
     }
-
     .ratio.contain {
       background-size: contain;
       background-repeat: no-repeat;
     }
-
     .fill img {
       object-fit: fill;
     }
-
     .contain img {
       object-fit: contain;
     }
@@ -401,8 +433,13 @@ export class CustomImage extends LitElement {
     }
 
     #brokenImage {
-      background: grey center/36px no-repeat;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M21,5V6.59L19.59,5H21M19,9.5V3.5A0.5,0.5 0 0,0 18.5,3H5.5A0.5,0.5 0 0,0 5,3.5V9.5A0.5,0.5 0 0,0 5.5,10H18.5A0.5,0.5 0 0,0 19,9.5Z'/%3E%3C/svg%3E");
+      background: grey url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M21,5V6.59L12.41,15.18L10.59,13.36L15.18,8.77L17.77,11.36L21,8.13V5A2,2 0 0,0 19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5M5,15.59L8.13,12.46L9.95,14.28L12.41,11.82L15.59,15H5V15.59Z'/%3E%3C/svg%3E") center/36px no-repeat;
     }
   `;
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "hui-image": HuiImage;
+  }
 }

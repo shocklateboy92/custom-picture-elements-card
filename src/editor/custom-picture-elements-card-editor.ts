@@ -1,7 +1,7 @@
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { HomeAssistant, LovelaceCardEditor, CustomPictureElementsCardConfig } from '../types';
-import { fireEvent } from '../utils/dom-utils';
+import { fireEvent } from '../utils/fire_event';
 
 @customElement('custom-picture-elements-card-editor')
 export class CustomPictureElementsCardEditor
@@ -145,7 +145,7 @@ export class CustomPictureElementsCardEditor
                 <div class="element-details">
                   <label>Type:</label>
                   <select
-                    @change=${(e) => this._updateElement(index, 'type', e.target.value)}
+                    @change=${(e: Event) => this._updateElement(index, 'type', (e.target as HTMLSelectElement).value)}
                   >
                     <option value="state-badge" ?selected=${element.type === 'state-badge'}>State Badge</option>
                     <option value="state-icon" ?selected=${element.type === 'state-icon'}>State Icon</option>
@@ -160,7 +160,7 @@ export class CustomPictureElementsCardEditor
                     <input
                       type="text"
                       .value=${element.entity || ''}
-                      @change=${(e) => this._updateElement(index, 'entity', e.target.value)}
+                      @change=${(e: Event) => this._updateElement(index, 'entity', (e.target as HTMLInputElement).value)}
                       placeholder="sensor.example"
                     />
                   ` : ''}
@@ -170,7 +170,7 @@ export class CustomPictureElementsCardEditor
                     <input
                       type="text"
                       .value=${element.icon || ''}
-                      @change=${(e) => this._updateElement(index, 'icon', e.target.value)}
+                      @change=${(e: Event) => this._updateElement(index, 'icon', (e.target as HTMLInputElement).value)}
                       placeholder="mdi:home"
                     />
                   ` : ''}
@@ -180,7 +180,7 @@ export class CustomPictureElementsCardEditor
                     <input
                       type="text"
                       .value=${element.image || ''}
-                      @change=${(e) => this._updateElement(index, 'image', e.target.value)}
+                      @change=${(e: Event) => this._updateElement(index, 'image', (e.target as HTMLInputElement).value)}
                     />
                   ` : ''}
 
@@ -188,14 +188,14 @@ export class CustomPictureElementsCardEditor
                   <input
                     type="text"
                     .value=${element.title || ''}
-                    @change=${(e) => this._updateElement(index, 'title', e.target.value)}
+                    @change=${(e: Event) => this._updateElement(index, 'title', (e.target as HTMLInputElement).value)}
                   />
 
                   <label>Top Position:</label>
                   <input
                     type="text"
                     .value=${element.style?.top || '50%'}
-                    @change=${(e) => this._updateElementStyle(index, 'top', e.target.value)}
+                    @change=${(e: Event) => this._updateElementStyle(index, 'top', (e.target as HTMLInputElement).value)}
                     placeholder="50%"
                   />
 
@@ -203,7 +203,7 @@ export class CustomPictureElementsCardEditor
                   <input
                     type="text"
                     .value=${element.style?.left || '50%'}
-                    @change=${(e) => this._updateElementStyle(index, 'left', e.target.value)}
+                    @change=${(e: Event) => this._updateElementStyle(index, 'left', (e.target as HTMLInputElement).value)}
                     placeholder="50%"
                   />
                 </div>

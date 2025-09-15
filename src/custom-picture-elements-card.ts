@@ -1,23 +1,26 @@
-import { css, html, LitElement, nothing, PropertyValues } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import {
+import type { PropertyValues } from "lit";
+import { css, html, LitElement, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { applyThemesOnElement } from "./utils/apply_themes_on_element";
+import { computeDomain } from "./utils/compute_domain";
+import { computeImageUrl } from "./utils/compute_image_url";
+import { findEntities } from "./utils/find_entities";
+import { createStyledHuiElement } from "./utils/create_styled_hui_element";
+import type {
   HomeAssistant,
   LovelaceCard,
+  LovelaceCardEditor,
   LovelaceElement,
   LovelaceElementConfig,
-  CustomPictureElementsCardConfig,
-} from './types';
-import { applyThemesOnElement, computeDomain } from './utils/dom-utils';
-import { createStyledCustomElement } from './utils/create-styled-element';
-import './components/custom-image';
+  PictureElementsCardConfig,
+  ImageEntity,
+  PersonEntity
+} from "./types";
+import "./components/hui-image";
 
 @customElement('custom-picture-elements-card')
-export class CustomPictureElementsCard
-  extends LitElement
-  implements LovelaceCard
-{
-  public static async getConfigElement() {
-    // Editor will be loaded dynamically when needed
+class CustomPictureElementsCard extends LitElement implements LovelaceCard {
+  public static async getConfigElement(): Promise<LovelaceCardEditor> {
     await import('./editor/custom-picture-elements-card-editor');
     return document.createElement('custom-picture-elements-card-editor');
   }
@@ -29,38 +32,44 @@ export class CustomPictureElementsCard
   @state() private _elements?: LovelaceElement[];
 
   public static getStubConfig(
-    hass?: HomeAssistant,
-    entities?: string[],
-    entitiesFallback?: string[]
-  ): CustomPictureElementsCardConfig {
-    const foundEntities =
-      entities?.slice(0, 1) || entitiesFallback?.slice(0, 1) || [];
+    hass: HomeAssistant,
+    entities: string[],
+    entitiesFallback: string[]
+  ): PictureElementsCardConfig {
+    const maxEntities = 1;
+    const foundEntities = findEntities(
+      hass,
+      maxEntities,
+      entities,
+      entitiesFallback,
+      ["sensor", "binary_sensor"]
+    );
 
     return {
-      type: 'custom:custom-picture-elements-card',
+      type: "picture-elements",
       elements: [
         {
-          type: 'state-badge',
-          entity: foundEntities[0] || '',
+          type: "state-badge",
+          entity: foundEntities[0] || "",
           style: {
-            top: '32%',
-            left: '40%',
+            top: "32%",
+            left: "40%",
           },
         },
       ],
-      image: 'https://demo.home-assistant.io/stub_config/floorplan.png',
+      image: "https://demo.home-assistant.io/stub_config/floorplan.png",
     };
   }
 
-  @state() private _config?: CustomPictureElementsCardConfig;
+  @state() private _config?: PictureElementsCardConfig;
 
   public getCardSize(): number {
     return 4;
   }
 
-  public setConfig(config: CustomPictureElementsCardConfig): void {
+  public setConfig(config: PictureElementsCardConfig): void {
     if (!config) {
-      throw new Error('Invalid configuration');
+      throw new Error("Invalid configuration");
     } else if (
       !(
         config.image ||
@@ -70,9 +79,9 @@ export class CustomPictureElementsCard
       ) ||
       (config.state_image && !config.entity)
     ) {
-      throw new Error('Image required');
+      throw new Error("Image required");
     } else if (!Array.isArray(config.elements)) {
-      throw new Error('Elements required');
+      throw new Error("Elements required");
     }
 
     this._config = config;
@@ -101,9 +110,9 @@ export class CustomPictureElementsCard
       }
     }
 
-    const oldHass = changedProps.get('hass') as HomeAssistant | undefined;
-    const oldConfig = changedProps.get('_config') as
-      | CustomPictureElementsCardConfig
+    const oldHass = changedProps.get("hass") as HomeAssistant | undefined;
+    const oldConfig = changedProps.get("_config") as
+      | PictureElementsCardConfig
       | undefined;
 
     if (
@@ -123,16 +132,16 @@ export class CustomPictureElementsCard
 
     let image: string | undefined = this._config.image;
     if (this._config.image_entity) {
-      const stateObj = this.hass.states[this._config.image_entity];
+      const stateObj: ImageEntity | PersonEntity | undefined =
+        this.hass.states[this._config.image_entity];
       const domain: string = computeDomain(this._config.image_entity);
       switch (domain) {
-        case 'image':
-          // Simplified image entity handling
-          image = stateObj?.attributes?.entity_picture || this._config.image;
+        case "image":
+          image = computeImageUrl(stateObj as ImageEntity);
           break;
-        case 'person':
-          if (stateObj?.attributes?.entity_picture) {
-            image = stateObj.attributes.entity_picture;
+        case "person":
+          if ((stateObj as PersonEntity).attributes.entity_picture) {
+            image = (stateObj as PersonEntity).attributes.entity_picture;
           }
           break;
       }
@@ -141,7 +150,7 @@ export class CustomPictureElementsCard
     return html`
       <ha-card .header=${this._config.title}>
         <div id="root">
-          <custom-image
+          <hui-image
             .hass=${this.hass}
             .image=${image}
             .stateImage=${this._config.state_image}
@@ -152,7 +161,7 @@ export class CustomPictureElementsCard
             .aspectRatio=${this._config.aspect_ratio}
             .darkModeFilter=${this._config.dark_mode_filter}
             .darkModeImage=${this._config.dark_mode_image}
-          ></custom-image>
+          ></hui-image>
           ${this._elements}
         </div>
       </ha-card>
@@ -174,48 +183,19 @@ export class CustomPictureElementsCard
       height: 100%;
       box-sizing: border-box;
     }
-
-    /* Fallback for ha-card if not available */
-    :host {
-      display: block;
-      background: var(--card-background-color, #fff);
-      border-radius: var(--ha-card-border-radius, 12px);
-      box-shadow: var(
-        --ha-card-box-shadow,
-        0 2px 2px 0 rgba(0, 0, 0, 0.14),
-        0 1px 5px 0 rgba(0, 0, 0, 0.12),
-        0 3px 1px -2px rgba(0, 0, 0, 0.15)
-      );
-      color: var(--primary-text-color);
-      display: block;
-      transition: all 0.3s ease-out 0s;
-      position: relative;
-    }
-
-    /* Header styling if ha-card is not available */
-    .header {
-      color: var(--ha-card-header-color, --primary-text-color);
-      font-family: var(--ha-card-header-font-family, inherit);
-      font-size: var(--ha-card-header-font-size, 24px);
-      font-weight: normal;
-      margin-top: 0;
-      margin-bottom: 0;
-      padding: 24px 16px 16px;
-      display: block;
-    }
   `;
 
   private _createElement(
     elementConfig: LovelaceElementConfig
   ): LovelaceElement {
-    const element = createStyledCustomElement(elementConfig);
+    const element = createStyledHuiElement(elementConfig);
     if (this.hass) {
       element.hass = this.hass;
     }
     element.preview = this.preview;
     element.addEventListener(
-      'll-rebuild',
-      (ev) => {
+      "ll-rebuild",
+      (ev: Event) => {
         ev.stopPropagation();
         this._rebuildElement(element, elementConfig);
       },
@@ -240,7 +220,7 @@ export class CustomPictureElementsCard
 
 declare global {
   interface HTMLElementTagNameMap {
-    'custom-picture-elements-card': CustomPictureElementsCard;
+    "custom-picture-elements-card": CustomPictureElementsCard;
   }
 }
 
@@ -249,14 +229,14 @@ declare global {
 (window as any).customCards.push({
   type: 'custom-picture-elements-card',
   name: 'Custom Picture Elements Card',
-  description: 'A customizable picture elements card',
+  description: 'A picture elements card ported from Home Assistant core',
   documentationURL:
     'https://github.com/yourusername/custom-picture-elements-card',
   preview: true,
 });
 
 console.info(
-  `%c  Custom Picture Elements Card %c v1.0.6 `,
+  `%c  Custom Picture Elements Card %c v2.0.0 `,
   'color: orange; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray'
 );

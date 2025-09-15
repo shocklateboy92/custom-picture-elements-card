@@ -74,3 +74,40 @@ export interface ActionConfig {
   url_path?: string;
   confirmation?: boolean | { text?: string; exemptions?: any[] };
 }
+
+export interface ImageEntityAttributes {
+  access_token: string;
+  entity_picture?: string;
+}
+
+export interface ImageEntity {
+  entity_id: string;
+  state: string;
+  attributes: ImageEntityAttributes;
+}
+
+export interface PersonEntity {
+  entity_id: string;
+  state: string;
+  attributes: {
+    entity_picture?: string;
+    [key: string]: any;
+  };
+}
+
+export interface PictureElementsCardConfig {
+  type: "picture-elements";
+  title?: string;
+  image?: string;
+  image_entity?: string;
+  camera_image?: string;
+  camera_view?: "live" | "auto";
+  state_image?: Record<string, string>;
+  state_filter?: Record<string, string>;
+  aspect_ratio?: string;
+  entity?: string;
+  elements: LovelaceElementConfig[];
+  theme?: string;
+  dark_mode_image?: string;
+  dark_mode_filter?: string;
+}
