@@ -6,9 +6,9 @@ A customizable picture elements card for Home Assistant that extends the functio
 [![License][license-shield]](LICENSE)
 [![HACS][hacsbadge]][hacs]
 
-[releases-shield]: https://img.shields.io/github/release/yourusername/custom-picture-elements-card.svg?style=for-the-badge
-[releases]: https://github.com/yourusername/custom-picture-elements-card/releases
-[license-shield]: https://img.shields.io/github/license/yourusername/custom-picture-elements-card.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/shocklateboy92/custom-picture-elements-card.svg?style=for-the-badge
+[releases]: https://github.com/shocklateboy92/custom-picture-elements-card/releases
+[license-shield]: https://img.shields.io/github/license/shocklateboy92/custom-picture-elements-card.svg?style=for-the-badge
 [hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
 
@@ -29,14 +29,14 @@ A customizable picture elements card for Home Assistant that extends the functio
 1. Make sure [HACS](https://hacs.xyz/) is installed
 2. Go to HACS → Frontend
 3. Click the 3-dot menu → Custom repositories
-4. Add repository URL: `https://github.com/yourusername/custom-picture-elements-card`
+4. Add repository URL: `https://github.com/shocklateboy92/custom-picture-elements-card`
 5. Category: Lovelace
 6. Install "Custom Picture Elements Card"
 7. Restart Home Assistant
 
 ### Manual Installation
 
-1. Download `custom-picture-elements-card.js` from the [latest release](https://github.com/yourusername/custom-picture-elements-card/releases)
+1. Download `custom-picture-elements-card.js` from the [latest release](https://github.com/shocklateboy92/custom-picture-elements-card/releases)
 2. Copy to `config/www/custom-picture-elements-card.js`
 3. Add to your Lovelace resources:
 

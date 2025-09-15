@@ -22,7 +22,7 @@ A customizable picture elements card for Home Assistant, forked from the origina
 1. Open HACS in your Home Assistant instance
 2. Go to Frontend
 3. Click the 3-dot menu and select "Custom repositories"
-4. Add this repository URL: `https://github.com/yourusername/custom-picture-elements-card`
+4. Add this repository URL: `https://github.com/shocklateboy92/custom-picture-elements-card`
 5. Select category: "Lovelace"
 6. Click "Add"
 7. Find "Custom Picture Elements Card" and install it
@@ -30,7 +30,7 @@ A customizable picture elements card for Home Assistant, forked from the origina
 
 ### Manual Installation
 
-1. Download the `custom-picture-elements-card.js` file from the [latest release](https://github.com/yourusername/custom-picture-elements-card/releases)
+1. Download the `custom-picture-elements-card.js` file from the [latest release](https://github.com/shocklateboy92/custom-picture-elements-card/releases)
 2. Copy it to your `config/www/` directory
 3. Add the following to your Lovelace dashboard resources:
    ```yaml
@@ -136,7 +136,7 @@ npm run build
 
 ## Support
 
-For issues and feature requests, please use the [GitHub repository](https://github.com/yourusername/custom-picture-elements-card/issues).
+For issues and feature requests, please use the [GitHub repository](https://github.com/shocklateboy92/custom-picture-elements-card/issues).
 
 ## License
 

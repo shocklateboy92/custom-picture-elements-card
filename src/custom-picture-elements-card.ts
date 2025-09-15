@@ -231,7 +231,7 @@ declare global {
   name: 'Custom Picture Elements Card',
   description: 'A picture elements card ported from Home Assistant core',
   documentationURL:
-    'https://github.com/yourusername/custom-picture-elements-card',
+    'https://github.com/shocklateboy92/custom-picture-elements-card',
   preview: true,
 });
 
