@@ -58,7 +58,7 @@ export class CustomPictureElementsCardEditor
   }
 
   private _schema = memoizeOne(
-    (localize: any) =>
+    () =>
       [
         {
           name: '',
@@ -105,7 +105,7 @@ export class CustomPictureElementsCardEditor
       <ha-form
         .hass=${this.hass}
         .data=${this._config}
-        .schema=${this._schema(this.hass.localize)}
+        .schema=${this._schema()}
         .computeLabel=${this._computeLabelCallback}
         @value-changed=${this._formChanged}
       ></ha-form>
@@ -123,7 +123,18 @@ export class CustomPictureElementsCardEditor
       return nothing;
     }
 
-    const elementConfig = this._subElementEditorConfig.elementConfig || { type: 'state-icon' };
+    const baseElementConfig = this._subElementEditorConfig.elementConfig || { type: 'state-icon' };
+
+    // Extract position values from style for the form
+    const style = baseElementConfig.style || {};
+    const topMatch = style.top?.match(/^(\d+(?:\.\d+)?)%$/);
+    const leftMatch = style.left?.match(/^(\d+(?:\.\d+)?)%$/);
+
+    const elementConfig = {
+      ...baseElementConfig,
+      top_position: topMatch ? parseFloat(topMatch[1]) : undefined,
+      left_position: leftMatch ? parseFloat(leftMatch[1]) : undefined,
+    };
     const elementSchema = [
       { name: 'type', selector: { select: {
         options: [
@@ -138,6 +149,8 @@ export class CustomPictureElementsCardEditor
       { name: 'entity', selector: { entity: {} }},
       { name: 'icon', selector: { icon: {} }},
       { name: 'title', selector: { text: {} }},
+      { name: 'top_position', selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: '%' } }},
+      { name: 'left_position', selector: { number: { min: 0, max: 100, step: 1, unit_of_measurement: '%' } }},
       { name: 'style', selector: { object: {} }},
     ];
 
@@ -171,7 +184,25 @@ export class CustomPictureElementsCardEditor
       return;
     }
 
-    const newElementConfig = ev.detail.value;
+    const formData = ev.detail.value;
+
+    // Extract positioning values and create/update style object
+    const { top_position, left_position, ...otherConfig } = formData;
+    const newElementConfig = { ...otherConfig };
+
+    // Initialize style object if it doesn't exist
+    newElementConfig.style = { ...formData.style };
+
+    // Update top position if provided
+    if (top_position !== undefined && top_position !== null) {
+      newElementConfig.style.top = `${top_position}%`;
+    }
+
+    // Update left position if provided
+    if (left_position !== undefined && left_position !== null) {
+      newElementConfig.style.left = `${left_position}%`;
+    }
+
     this._subElementEditorConfig = {
       ...this._subElementEditorConfig,
       elementConfig: newElementConfig,
@@ -223,34 +254,6 @@ export class CustomPictureElementsCardEditor
     this._subElementEditorConfig = ev.detail.subElementConfig;
   }
 
-  private _handleSubElementChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-    if (!this._config || !this.hass) {
-      return;
-    }
-
-    const configValue = this._subElementEditorConfig?.type;
-    const value = ev.detail.config;
-
-    if (configValue === 'element') {
-      const newConfigElements = this._config.elements!.concat();
-      if (!value) {
-        newConfigElements.splice(this._subElementEditorConfig!.index!, 1);
-        this._goBack();
-      } else {
-        newConfigElements[this._subElementEditorConfig!.index!] = value;
-      }
-
-      this._config = { ...this._config!, elements: newConfigElements };
-    }
-
-    this._subElementEditorConfig = {
-      ...this._subElementEditorConfig!,
-      elementConfig: value,
-    };
-
-    fireEvent(this, 'config-changed', { config: this._config });
-  }
 
   private _goBack(): void {
     this._subElementEditorConfig = undefined;
@@ -258,6 +261,10 @@ export class CustomPictureElementsCardEditor
 
   private _computeLabelCallback = (schema: any) => {
     switch (schema.name) {
+      case 'top_position':
+        return 'Top Position';
+      case 'left_position':
+        return 'Left Position';
       case 'dark_mode_image':
       case 'state_filter':
       case 'dark_mode_filter':
