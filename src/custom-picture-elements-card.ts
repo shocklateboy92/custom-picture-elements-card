@@ -236,7 +236,7 @@ declare global {
 });
 
 console.info(
-  `%c  Custom Picture Elements Card %c v2.0.0 `,
+  `%c  Custom Picture Elements Card %c v1.1.0`,
   'color: orange; font-weight: bold; background: black',
   'color: white; font-weight: bold; background: dimgray'
 );
