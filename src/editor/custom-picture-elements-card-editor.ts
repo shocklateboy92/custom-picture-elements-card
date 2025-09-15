@@ -1,7 +1,7 @@
-import memoizeOne from "memoize-one";
-import type { CSSResultGroup } from "lit";
-import { html, LitElement, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import memoizeOne from 'memoize-one';
+import type { CSSResultGroup } from 'lit';
+import { html, LitElement, nothing } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import {
   any,
   array,
@@ -11,9 +11,14 @@ import {
   optional,
   string,
   type,
-} from "superstruct";
-import { fireEvent } from "../utils/fire_event";
-import type { HomeAssistant, LovelaceCardEditor, PictureElementsCardConfig, LovelaceElementConfig } from "../types";
+} from 'superstruct';
+import { fireEvent } from '../utils/fire_event';
+import type {
+  HomeAssistant,
+  LovelaceCardEditor,
+  PictureElementsCardConfig,
+  LovelaceElementConfig,
+} from '../types';
 
 const genericElementConfigStruct = type({
   type: string(),
@@ -36,7 +41,7 @@ const cardConfigStruct = assign(
   })
 );
 
-@customElement("custom-picture-elements-card-editor")
+@customElement('custom-picture-elements-card-editor')
 export class CustomPictureElementsCardEditor
   extends LitElement
   implements LovelaceCardEditor
@@ -53,96 +58,101 @@ export class CustomPictureElementsCardEditor
   }
 
   private _schema = memoizeOne(
-    (localize: any) =>
+    () =>
       [
         {
-          name: "",
-          type: "expandable",
-          title: "Card Options",
+          name: '',
+          type: 'expandable',
+          title: 'Card Options',
           schema: [
-            { name: "title", selector: { text: {} } },
-            { name: "image", selector: { image: {} } },
-            { name: "dark_mode_image", selector: { image: {} } },
+            { name: 'title', selector: { text: {} } },
+            { name: 'image', selector: { image: {} } },
+            { name: 'dark_mode_image', selector: { image: {} } },
             {
-              name: "camera_image",
-              selector: { entity: { domain: "camera" } },
+              name: 'camera_image',
+              selector: { entity: { domain: 'camera' } },
             },
             {
-              name: "camera_view",
+              name: 'camera_view',
               selector: {
                 select: {
-                  options: ["auto", "live"].map((value) => ({
+                  options: ['auto', 'live'].map((value) => ({
                     value,
                     label: value.charAt(0).toUpperCase() + value.slice(1),
                   })),
-                  mode: "dropdown",
+                  mode: 'dropdown',
                 },
               },
             },
-            { name: "theme", selector: { theme: {} } },
-            { name: "state_filter", selector: { object: {} } },
-            { name: "dark_mode_filter", selector: { object: {} } },
+            { name: 'theme', selector: { theme: {} } },
+            { name: 'state_filter', selector: { object: {} } },
+            { name: 'dark_mode_filter', selector: { object: {} } },
           ],
         },
         {
-          name: "",
-          type: "expandable",
-          title: "Elements",
+          name: '',
+          type: 'expandable',
+          title: 'Elements',
           schema: [
             {
-              name: "elements",
+              name: 'elements',
               selector: {
                 list: {
                   add: {
-                    type: "select",
+                    type: 'select',
                     options: [
-                      { value: "state-badge", label: "State Badge" },
-                      { value: "state-icon", label: "State Icon" },
-                      { value: "state-label", label: "State Label" },
-                      { value: "icon", label: "Icon" },
-                      { value: "image", label: "Image" },
-                      { value: "conditional", label: "Conditional" },
+                      { value: 'state-badge', label: 'State Badge' },
+                      { value: 'state-icon', label: 'State Icon' },
+                      { value: 'state-label', label: 'State Label' },
+                      { value: 'icon', label: 'Icon' },
+                      { value: 'image', label: 'Image' },
+                      { value: 'conditional', label: 'Conditional' },
                     ],
                   },
                   schema: [
-                    { name: "type", selector: { select: {
-                      options: [
-                        { value: "state-badge", label: "State Badge" },
-                        { value: "state-icon", label: "State Icon" },
-                        { value: "state-label", label: "State Label" },
-                        { value: "icon", label: "Icon" },
-                        { value: "image", label: "Image" },
-                        { value: "conditional", label: "Conditional" },
-                      ]
-                    }}},
-                    { name: "entity", selector: { entity: {} } },
-                    { name: "icon", selector: { icon: {} } },
-                    { name: "image", selector: { image: {} } },
-                    { name: "title", selector: { text: {} } },
                     {
-                      name: "style",
+                      name: 'type',
+                      selector: {
+                        select: {
+                          options: [
+                            { value: 'state-badge', label: 'State Badge' },
+                            { value: 'state-icon', label: 'State Icon' },
+                            { value: 'state-label', label: 'State Label' },
+                            { value: 'icon', label: 'Icon' },
+                            { value: 'image', label: 'Image' },
+                            { value: 'conditional', label: 'Conditional' },
+                          ],
+                        },
+                      },
+                    },
+                    { name: 'entity', selector: { entity: {} } },
+                    { name: 'icon', selector: { icon: {} } },
+                    { name: 'image', selector: { image: {} } },
+                    { name: 'title', selector: { text: {} } },
+                    {
+                      name: 'style',
                       selector: {
                         object: {
                           schema: [
-                            { name: "top", selector: { text: {} } },
-                            { name: "left", selector: { text: {} } },
-                            { name: "transform", selector: { text: {} } },
-                            { name: "background", selector: { text: {} } },
-                            { name: "color", selector: { text: {} } },
-                            { name: "font-size", selector: { text: {} } },
-                            { name: "border-radius", selector: { text: {} } },
-                            { name: "padding", selector: { text: {} } },
-                            { name: "margin", selector: { text: {} } },
-                          ]
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          ]
-        }
+                            { name: 'top', selector: { text: {} } },
+                            { name: 'left', selector: { text: {} } },
+                            { name: 'transform', selector: { text: {} } },
+                            { name: 'background', selector: { text: {} } },
+                            { name: 'color', selector: { text: {} } },
+                            { name: 'font-size', selector: { text: {} } },
+                            { name: 'border-radius', selector: { text: {} } },
+                            { name: 'padding', selector: { text: {} } },
+                            { name: 'margin', selector: { text: {} } },
+                          ],
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
       ] as const
   );
 
@@ -180,29 +190,7 @@ export class CustomPictureElementsCardEditor
       return;
     }
 
-    fireEvent(this, "config-changed", { config: ev.detail.value });
-  }
-
-  private _elementsChanged(ev: CustomEvent): void {
-    ev.stopPropagation();
-
-    const oldLength = this._config?.elements?.length || 0;
-    const config = {
-      ...this._config,
-      elements: ev.detail.elements as LovelaceElementConfig[],
-    };
-
-    fireEvent(this, "config-changed", { config });
-
-    const newLength = ev.detail.elements?.length || 0;
-    if (newLength === oldLength + 1) {
-      const index = newLength - 1;
-      this._subElementEditorConfig = {
-        index,
-        type: "element",
-        elementConfig: { ...ev.detail.elements[index] },
-      };
-    }
+    fireEvent(this, 'config-changed', { config: ev.detail.value });
   }
 
   private _handleSubElementChanged(ev: CustomEvent): void {
@@ -214,7 +202,7 @@ export class CustomPictureElementsCardEditor
     const configValue = this._subElementEditorConfig?.type;
     const value = ev.detail.config;
 
-    if (configValue === "element") {
+    if (configValue === 'element') {
       const newConfigElements = this._config.elements!.concat();
       if (!value) {
         newConfigElements.splice(this._subElementEditorConfig!.index!, 1);
@@ -231,11 +219,7 @@ export class CustomPictureElementsCardEditor
       elementConfig: value,
     };
 
-    fireEvent(this, "config-changed", { config: this._config });
-  }
-
-  private _editDetailElement(ev: any): void {
-    this._subElementEditorConfig = ev.detail.subElementConfig;
+    fireEvent(this, 'config-changed', { config: this._config });
   }
 
   private _goBack(): void {
@@ -244,12 +228,16 @@ export class CustomPictureElementsCardEditor
 
   private _computeLabelCallback = (schema: any) => {
     switch (schema.name) {
-      case "dark_mode_image":
-      case "state_filter":
-      case "dark_mode_filter":
-        return schema.name.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+      case 'dark_mode_image':
+      case 'state_filter':
+      case 'dark_mode_filter':
+        return schema.name
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (l: string) => l.toUpperCase());
       default:
-        return schema.name.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+        return schema.name
+          .replace(/_/g, ' ')
+          .replace(/\b\w/g, (l: string) => l.toUpperCase());
     }
   };
 
@@ -260,6 +248,6 @@ export class CustomPictureElementsCardEditor
 
 declare global {
   interface HTMLElementTagNameMap {
-    "custom-picture-elements-card-editor": CustomPictureElementsCardEditor;
+    'custom-picture-elements-card-editor': CustomPictureElementsCardEditor;
   }
 }
